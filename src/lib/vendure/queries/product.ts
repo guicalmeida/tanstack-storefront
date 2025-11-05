@@ -1,16 +1,20 @@
-import { graphql } from '@/gql/graphql';
-import productFragment from '../fragments/product';
+import { graphql } from "@/gql/graphql";
+import productFragment from "../fragments/product";
 import searchResultFragment from "../fragments/search-result";
 
-export const getProductQuery = graphql(`
+export const getProductQuery = graphql(
+  `
   query getProduct($slug: String!) {
     product(slug: $slug) {
       ...product
     }
   }
-`, [productFragment]);
+`,
+  [productFragment],
+);
 
-export const getProductsQuery = graphql(`
+export const getProductsQuery = graphql(
+  `
     query getProducts($sortKey: SearchResultSortParameter, $query: String) {
         search(input: { take: 100, sort: $sortKey, term: $query, groupByProduct: true}) {
             items {
@@ -19,7 +23,9 @@ export const getProductsQuery = graphql(`
             totalItems
         }
     }
-`, [searchResultFragment]);
+`,
+  [searchResultFragment],
+);
 
 // TODO: needs extension in Vendure
 // export const getProductRecommendationsQuery = /* GraphQL */ `

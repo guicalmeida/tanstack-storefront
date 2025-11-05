@@ -9,7 +9,8 @@ export const facetValueFragment = graphql(`
     }
 `);
 
-export const facetFragment = graphql(`
+export const facetFragment = graphql(
+  `
     fragment facet on Facet {
         id
         name
@@ -18,4 +19,6 @@ export const facetFragment = graphql(`
             ...facet_value
         }
     }
-`, [facetValueFragment]);
+`,
+  [facetValueFragment],
+);

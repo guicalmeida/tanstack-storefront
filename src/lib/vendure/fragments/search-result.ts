@@ -1,4 +1,4 @@
-import { graphql } from '@/gql/graphql';
+import { graphql } from "@/gql/graphql";
 
 const searchResultFragment = graphql(`
   fragment searchResult on SearchResult {

@@ -1,6 +1,6 @@
-import { graphql } from '@/gql/graphql';
-import searchResultFragment from '../fragments/search-result';
-import { facetValueFragment } from '../fragments/facet';
+import { graphql } from "@/gql/graphql";
+import { facetValueFragment } from "../fragments/facet";
+import searchResultFragment from "../fragments/search-result";
 
 export const collectionFragment = graphql(`
   fragment collection on Collection {
@@ -21,14 +21,22 @@ export const getCollectionQuery = graphql(
       }
     }
   `,
-  [collectionFragment]
+  [collectionFragment],
 );
 
 export const getCollectionsQuery = graphql(
   `
-    query getCollections($topLevelOnly: Boolean, $filter: CollectionFilterParameter) {
+    query getCollections(
+      $topLevelOnly: Boolean
+      $filter: CollectionFilterParameter
+    ) {
       collections(
-        options: { topLevelOnly: $topLevelOnly, filter: $filter, take: 100, sort: { name: DESC } }
+        options: {
+          topLevelOnly: $topLevelOnly
+          filter: $filter
+          take: 100
+          sort: { name: DESC }
+        }
       ) {
         items {
           ...collection
@@ -36,7 +44,7 @@ export const getCollectionsQuery = graphql(
       }
     }
   `,
-  [collectionFragment]
+  [collectionFragment],
 );
 
 export const getCollectionProductsQuery = graphql(
@@ -61,7 +69,7 @@ export const getCollectionProductsQuery = graphql(
       }
     }
   `,
-  [searchResultFragment]
+  [searchResultFragment],
 );
 
 export const getCollectionFacetValuesQuery = graphql(
@@ -76,5 +84,5 @@ export const getCollectionFacetValuesQuery = graphql(
       }
     }
   `,
-  [facetValueFragment]
+  [facetValueFragment],
 );

@@ -1,5 +1,5 @@
-import { graphql } from '@/gql/graphql';
-import productFragment from './product';
+import { graphql } from "@/gql/graphql";
+import productFragment from "./product";
 
 export const orderAddressFragment = graphql(`
   fragment OrderAddress on OrderAddress {
@@ -14,7 +14,8 @@ export const orderAddressFragment = graphql(`
   }
 `);
 
-export const orderFragment = graphql(`
+export const orderFragment = graphql(
+  `
   fragment Order on Order {
     id
     code
@@ -61,6 +62,8 @@ export const orderFragment = graphql(`
       ...OrderAddress
     }
   }
-`, [productFragment, orderAddressFragment]);
+`,
+  [productFragment, orderAddressFragment],
+);
 
 export default orderFragment;

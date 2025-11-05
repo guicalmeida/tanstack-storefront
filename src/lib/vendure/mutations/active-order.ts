@@ -1,34 +1,46 @@
-import { graphql } from '@/gql/graphql';
-import activeOrderFragment from '../fragments/active-order';
+import { graphql } from "@/gql/graphql";
+import activeOrderFragment from "../fragments/active-order";
 
-export const addItemToOrder = graphql(`
+export const addItemToOrder = graphql(
+  `
   mutation addItemToOrder($productVariantId: ID!, $quantity: Int!) {
     addItemToOrder(productVariantId: $productVariantId, quantity: $quantity) {
       ...active_order
     }
   }
-`, [activeOrderFragment]);
+`,
+  [activeOrderFragment],
+);
 
-export const createCartMutation = graphql(`
+export const createCartMutation = graphql(
+  `
   query activeOrder {
     activeOrder {
       ...active_order
     }
   }
-`, [activeOrderFragment]);
+`,
+  [activeOrderFragment],
+);
 
-export const adjustOrderLineMutation = graphql(`
+export const adjustOrderLineMutation = graphql(
+  `
   mutation adjustOrderLine($orderLineId: ID!, $quantity: Int!) {
     adjustOrderLine(orderLineId: $orderLineId, quantity: $quantity) {
       ...active_order
     }
   }
-`, [activeOrderFragment]);
+`,
+  [activeOrderFragment],
+);
 
-export const removeOrderLineMutation = graphql(`
+export const removeOrderLineMutation = graphql(
+  `
   mutation removeOrderLine($orderLineId: ID!) {
     removeOrderLine(orderLineId: $orderLineId) {
       ...active_order
     }
   }
-`, [activeOrderFragment]);
+`,
+  [activeOrderFragment],
+);

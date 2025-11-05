@@ -1,7 +1,8 @@
-import { graphql } from '@/gql/graphql';
-import { facetFragment } from '../fragments/facet';
+import { graphql } from "@/gql/graphql";
+import { facetFragment } from "../fragments/facet";
 
-export const getFacetsQuery = graphql(`
+export const getFacetsQuery = graphql(
+  `
     query getFacets {
         facets(options: {take: 100}) {
             items {
@@ -10,4 +11,6 @@ export const getFacetsQuery = graphql(`
             totalItems
         }
     }
-`, [facetFragment]);
+`,
+  [facetFragment],
+);

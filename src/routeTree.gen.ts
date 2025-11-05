@@ -9,201 +9,404 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as DemoStartServerFuncsRouteImport } from './routes/demo/start.server-funcs'
-import { Route as DemoStartApiRequestRouteImport } from './routes/demo/start.api-request'
-import { Route as DemoApiNamesRouteImport } from './routes/demo/api.names'
-import { Route as DemoStartSsrIndexRouteImport } from './routes/demo/start.ssr.index'
-import { Route as DemoStartSsrSpaModeRouteImport } from './routes/demo/start.ssr.spa-mode'
-import { Route as DemoStartSsrFullSsrRouteImport } from './routes/demo/start.ssr.full-ssr'
-import { Route as DemoStartSsrDataOnlyRouteImport } from './routes/demo/start.ssr.data-only'
+import { Route as LogoutRouteImport } from './routes/logout'
+import { Route as DefaultRouteRouteImport } from './routes/_default/route'
+import { Route as CheckoutRouteRouteImport } from './routes/_checkout/route'
+import { Route as AccountRouteRouteImport } from './routes/_account/route'
+import { Route as DefaultIndexRouteImport } from './routes/_default/index'
+import { Route as DefaultSignInRouteImport } from './routes/_default/sign-in'
+import { Route as DefaultSearchRouteRouteImport } from './routes/_default/_search/route'
+import { Route as CheckoutCheckoutRouteRouteImport } from './routes/_checkout/checkout/route'
+import { Route as AccountAccountIndexRouteImport } from './routes/_account/account/index'
+import { Route as DefaultProductProductIdRouteImport } from './routes/_default/product/$productId'
+import { Route as CheckoutCheckoutStepRouteImport } from './routes/_checkout/checkout/$step'
+import { Route as AccountAccountSettingsRouteImport } from './routes/_account/account/settings'
+import { Route as DefaultSearchSearchIndexRouteImport } from './routes/_default/_search/search/index'
+import { Route as AccountAccountOrdersIndexRouteImport } from './routes/_account/account/orders/index'
+import { Route as DefaultSearchCollectionsCollectionRouteImport } from './routes/_default/_search/collections/$collection'
+import { Route as AccountAccountOrdersCodeRouteImport } from './routes/_account/account/orders/$code'
 
-const IndexRoute = IndexRouteImport.update({
+const LogoutRoute = LogoutRouteImport.update({
+  id: '/logout',
+  path: '/logout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DefaultRouteRoute = DefaultRouteRouteImport.update({
+  id: '/_default',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CheckoutRouteRoute = CheckoutRouteRouteImport.update({
+  id: '/_checkout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AccountRouteRoute = AccountRouteRouteImport.update({
+  id: '/_account',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DefaultIndexRoute = DefaultIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => rootRouteImport,
+  getParentRoute: () => DefaultRouteRoute,
 } as any)
-const DemoStartServerFuncsRoute = DemoStartServerFuncsRouteImport.update({
-  id: '/demo/start/server-funcs',
-  path: '/demo/start/server-funcs',
-  getParentRoute: () => rootRouteImport,
+const DefaultSignInRoute = DefaultSignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => DefaultRouteRoute,
 } as any)
-const DemoStartApiRequestRoute = DemoStartApiRequestRouteImport.update({
-  id: '/demo/start/api-request',
-  path: '/demo/start/api-request',
-  getParentRoute: () => rootRouteImport,
+const DefaultSearchRouteRoute = DefaultSearchRouteRouteImport.update({
+  id: '/_search',
+  getParentRoute: () => DefaultRouteRoute,
 } as any)
-const DemoApiNamesRoute = DemoApiNamesRouteImport.update({
-  id: '/demo/api/names',
-  path: '/demo/api/names',
-  getParentRoute: () => rootRouteImport,
+const CheckoutCheckoutRouteRoute = CheckoutCheckoutRouteRouteImport.update({
+  id: '/checkout',
+  path: '/checkout',
+  getParentRoute: () => CheckoutRouteRoute,
 } as any)
-const DemoStartSsrIndexRoute = DemoStartSsrIndexRouteImport.update({
-  id: '/demo/start/ssr/',
-  path: '/demo/start/ssr/',
-  getParentRoute: () => rootRouteImport,
+const AccountAccountIndexRoute = AccountAccountIndexRouteImport.update({
+  id: '/account/',
+  path: '/account/',
+  getParentRoute: () => AccountRouteRoute,
 } as any)
-const DemoStartSsrSpaModeRoute = DemoStartSsrSpaModeRouteImport.update({
-  id: '/demo/start/ssr/spa-mode',
-  path: '/demo/start/ssr/spa-mode',
-  getParentRoute: () => rootRouteImport,
+const DefaultProductProductIdRoute = DefaultProductProductIdRouteImport.update({
+  id: '/product/$productId',
+  path: '/product/$productId',
+  getParentRoute: () => DefaultRouteRoute,
 } as any)
-const DemoStartSsrFullSsrRoute = DemoStartSsrFullSsrRouteImport.update({
-  id: '/demo/start/ssr/full-ssr',
-  path: '/demo/start/ssr/full-ssr',
-  getParentRoute: () => rootRouteImport,
+const CheckoutCheckoutStepRoute = CheckoutCheckoutStepRouteImport.update({
+  id: '/$step',
+  path: '/$step',
+  getParentRoute: () => CheckoutCheckoutRouteRoute,
 } as any)
-const DemoStartSsrDataOnlyRoute = DemoStartSsrDataOnlyRouteImport.update({
-  id: '/demo/start/ssr/data-only',
-  path: '/demo/start/ssr/data-only',
-  getParentRoute: () => rootRouteImport,
+const AccountAccountSettingsRoute = AccountAccountSettingsRouteImport.update({
+  id: '/account/settings',
+  path: '/account/settings',
+  getParentRoute: () => AccountRouteRoute,
 } as any)
+const DefaultSearchSearchIndexRoute =
+  DefaultSearchSearchIndexRouteImport.update({
+    id: '/search/',
+    path: '/search/',
+    getParentRoute: () => DefaultSearchRouteRoute,
+  } as any)
+const AccountAccountOrdersIndexRoute =
+  AccountAccountOrdersIndexRouteImport.update({
+    id: '/account/orders/',
+    path: '/account/orders/',
+    getParentRoute: () => AccountRouteRoute,
+  } as any)
+const DefaultSearchCollectionsCollectionRoute =
+  DefaultSearchCollectionsCollectionRouteImport.update({
+    id: '/collections/$collection',
+    path: '/collections/$collection',
+    getParentRoute: () => DefaultSearchRouteRoute,
+  } as any)
+const AccountAccountOrdersCodeRoute =
+  AccountAccountOrdersCodeRouteImport.update({
+    id: '/account/orders/$code',
+    path: '/account/orders/$code',
+    getParentRoute: () => AccountRouteRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof IndexRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/logout': typeof LogoutRoute
+  '/checkout': typeof CheckoutCheckoutRouteRouteWithChildren
+  '/sign-in': typeof DefaultSignInRoute
+  '/': typeof DefaultIndexRoute
+  '/account/settings': typeof AccountAccountSettingsRoute
+  '/checkout/$step': typeof CheckoutCheckoutStepRoute
+  '/product/$productId': typeof DefaultProductProductIdRoute
+  '/account': typeof AccountAccountIndexRoute
+  '/account/orders/$code': typeof AccountAccountOrdersCodeRoute
+  '/collections/$collection': typeof DefaultSearchCollectionsCollectionRoute
+  '/account/orders': typeof AccountAccountOrdersIndexRoute
+  '/search': typeof DefaultSearchSearchIndexRoute
 }
 export interface FileRoutesByTo {
-  '/': typeof IndexRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr': typeof DemoStartSsrIndexRoute
+  '/logout': typeof LogoutRoute
+  '/checkout': typeof CheckoutCheckoutRouteRouteWithChildren
+  '/sign-in': typeof DefaultSignInRoute
+  '/': typeof DefaultIndexRoute
+  '/account/settings': typeof AccountAccountSettingsRoute
+  '/checkout/$step': typeof CheckoutCheckoutStepRoute
+  '/product/$productId': typeof DefaultProductProductIdRoute
+  '/account': typeof AccountAccountIndexRoute
+  '/account/orders/$code': typeof AccountAccountOrdersCodeRoute
+  '/collections/$collection': typeof DefaultSearchCollectionsCollectionRoute
+  '/account/orders': typeof AccountAccountOrdersIndexRoute
+  '/search': typeof DefaultSearchSearchIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/': typeof IndexRoute
-  '/demo/api/names': typeof DemoApiNamesRoute
-  '/demo/start/api-request': typeof DemoStartApiRequestRoute
-  '/demo/start/server-funcs': typeof DemoStartServerFuncsRoute
-  '/demo/start/ssr/data-only': typeof DemoStartSsrDataOnlyRoute
-  '/demo/start/ssr/full-ssr': typeof DemoStartSsrFullSsrRoute
-  '/demo/start/ssr/spa-mode': typeof DemoStartSsrSpaModeRoute
-  '/demo/start/ssr/': typeof DemoStartSsrIndexRoute
+  '/_account': typeof AccountRouteRouteWithChildren
+  '/_checkout': typeof CheckoutRouteRouteWithChildren
+  '/_default': typeof DefaultRouteRouteWithChildren
+  '/logout': typeof LogoutRoute
+  '/_checkout/checkout': typeof CheckoutCheckoutRouteRouteWithChildren
+  '/_default/_search': typeof DefaultSearchRouteRouteWithChildren
+  '/_default/sign-in': typeof DefaultSignInRoute
+  '/_default/': typeof DefaultIndexRoute
+  '/_account/account/settings': typeof AccountAccountSettingsRoute
+  '/_checkout/checkout/$step': typeof CheckoutCheckoutStepRoute
+  '/_default/product/$productId': typeof DefaultProductProductIdRoute
+  '/_account/account/': typeof AccountAccountIndexRoute
+  '/_account/account/orders/$code': typeof AccountAccountOrdersCodeRoute
+  '/_default/_search/collections/$collection': typeof DefaultSearchCollectionsCollectionRoute
+  '/_account/account/orders/': typeof AccountAccountOrdersIndexRoute
+  '/_default/_search/search/': typeof DefaultSearchSearchIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/logout'
+    | '/checkout'
+    | '/sign-in'
     | '/'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
+    | '/account/settings'
+    | '/checkout/$step'
+    | '/product/$productId'
+    | '/account'
+    | '/account/orders/$code'
+    | '/collections/$collection'
+    | '/account/orders'
+    | '/search'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/logout'
+    | '/checkout'
+    | '/sign-in'
     | '/'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr'
+    | '/account/settings'
+    | '/checkout/$step'
+    | '/product/$productId'
+    | '/account'
+    | '/account/orders/$code'
+    | '/collections/$collection'
+    | '/account/orders'
+    | '/search'
   id:
     | '__root__'
-    | '/'
-    | '/demo/api/names'
-    | '/demo/start/api-request'
-    | '/demo/start/server-funcs'
-    | '/demo/start/ssr/data-only'
-    | '/demo/start/ssr/full-ssr'
-    | '/demo/start/ssr/spa-mode'
-    | '/demo/start/ssr/'
+    | '/_account'
+    | '/_checkout'
+    | '/_default'
+    | '/logout'
+    | '/_checkout/checkout'
+    | '/_default/_search'
+    | '/_default/sign-in'
+    | '/_default/'
+    | '/_account/account/settings'
+    | '/_checkout/checkout/$step'
+    | '/_default/product/$productId'
+    | '/_account/account/'
+    | '/_account/account/orders/$code'
+    | '/_default/_search/collections/$collection'
+    | '/_account/account/orders/'
+    | '/_default/_search/search/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  IndexRoute: typeof IndexRoute
-  DemoApiNamesRoute: typeof DemoApiNamesRoute
-  DemoStartApiRequestRoute: typeof DemoStartApiRequestRoute
-  DemoStartServerFuncsRoute: typeof DemoStartServerFuncsRoute
-  DemoStartSsrDataOnlyRoute: typeof DemoStartSsrDataOnlyRoute
-  DemoStartSsrFullSsrRoute: typeof DemoStartSsrFullSsrRoute
-  DemoStartSsrSpaModeRoute: typeof DemoStartSsrSpaModeRoute
-  DemoStartSsrIndexRoute: typeof DemoStartSsrIndexRoute
+  AccountRouteRoute: typeof AccountRouteRouteWithChildren
+  CheckoutRouteRoute: typeof CheckoutRouteRouteWithChildren
+  DefaultRouteRoute: typeof DefaultRouteRouteWithChildren
+  LogoutRoute: typeof LogoutRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
+    '/logout': {
+      id: '/logout'
+      path: '/logout'
+      fullPath: '/logout'
+      preLoaderRoute: typeof LogoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_default': {
+      id: '/_default'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof DefaultRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_checkout': {
+      id: '/_checkout'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof CheckoutRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_account': {
+      id: '/_account'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof AccountRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_default/': {
+      id: '/_default/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
+      preLoaderRoute: typeof DefaultIndexRouteImport
+      parentRoute: typeof DefaultRouteRoute
     }
-    '/demo/start/server-funcs': {
-      id: '/demo/start/server-funcs'
-      path: '/demo/start/server-funcs'
-      fullPath: '/demo/start/server-funcs'
-      preLoaderRoute: typeof DemoStartServerFuncsRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_default/sign-in': {
+      id: '/_default/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof DefaultSignInRouteImport
+      parentRoute: typeof DefaultRouteRoute
     }
-    '/demo/start/api-request': {
-      id: '/demo/start/api-request'
-      path: '/demo/start/api-request'
-      fullPath: '/demo/start/api-request'
-      preLoaderRoute: typeof DemoStartApiRequestRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_default/_search': {
+      id: '/_default/_search'
+      path: ''
+      fullPath: ''
+      preLoaderRoute: typeof DefaultSearchRouteRouteImport
+      parentRoute: typeof DefaultRouteRoute
     }
-    '/demo/api/names': {
-      id: '/demo/api/names'
-      path: '/demo/api/names'
-      fullPath: '/demo/api/names'
-      preLoaderRoute: typeof DemoApiNamesRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_checkout/checkout': {
+      id: '/_checkout/checkout'
+      path: '/checkout'
+      fullPath: '/checkout'
+      preLoaderRoute: typeof CheckoutCheckoutRouteRouteImport
+      parentRoute: typeof CheckoutRouteRoute
     }
-    '/demo/start/ssr/': {
-      id: '/demo/start/ssr/'
-      path: '/demo/start/ssr'
-      fullPath: '/demo/start/ssr'
-      preLoaderRoute: typeof DemoStartSsrIndexRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_account/account/': {
+      id: '/_account/account/'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AccountAccountIndexRouteImport
+      parentRoute: typeof AccountRouteRoute
     }
-    '/demo/start/ssr/spa-mode': {
-      id: '/demo/start/ssr/spa-mode'
-      path: '/demo/start/ssr/spa-mode'
-      fullPath: '/demo/start/ssr/spa-mode'
-      preLoaderRoute: typeof DemoStartSsrSpaModeRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_default/product/$productId': {
+      id: '/_default/product/$productId'
+      path: '/product/$productId'
+      fullPath: '/product/$productId'
+      preLoaderRoute: typeof DefaultProductProductIdRouteImport
+      parentRoute: typeof DefaultRouteRoute
     }
-    '/demo/start/ssr/full-ssr': {
-      id: '/demo/start/ssr/full-ssr'
-      path: '/demo/start/ssr/full-ssr'
-      fullPath: '/demo/start/ssr/full-ssr'
-      preLoaderRoute: typeof DemoStartSsrFullSsrRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_checkout/checkout/$step': {
+      id: '/_checkout/checkout/$step'
+      path: '/$step'
+      fullPath: '/checkout/$step'
+      preLoaderRoute: typeof CheckoutCheckoutStepRouteImport
+      parentRoute: typeof CheckoutCheckoutRouteRoute
     }
-    '/demo/start/ssr/data-only': {
-      id: '/demo/start/ssr/data-only'
-      path: '/demo/start/ssr/data-only'
-      fullPath: '/demo/start/ssr/data-only'
-      preLoaderRoute: typeof DemoStartSsrDataOnlyRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_account/account/settings': {
+      id: '/_account/account/settings'
+      path: '/account/settings'
+      fullPath: '/account/settings'
+      preLoaderRoute: typeof AccountAccountSettingsRouteImport
+      parentRoute: typeof AccountRouteRoute
+    }
+    '/_default/_search/search/': {
+      id: '/_default/_search/search/'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof DefaultSearchSearchIndexRouteImport
+      parentRoute: typeof DefaultSearchRouteRoute
+    }
+    '/_account/account/orders/': {
+      id: '/_account/account/orders/'
+      path: '/account/orders'
+      fullPath: '/account/orders'
+      preLoaderRoute: typeof AccountAccountOrdersIndexRouteImport
+      parentRoute: typeof AccountRouteRoute
+    }
+    '/_default/_search/collections/$collection': {
+      id: '/_default/_search/collections/$collection'
+      path: '/collections/$collection'
+      fullPath: '/collections/$collection'
+      preLoaderRoute: typeof DefaultSearchCollectionsCollectionRouteImport
+      parentRoute: typeof DefaultSearchRouteRoute
+    }
+    '/_account/account/orders/$code': {
+      id: '/_account/account/orders/$code'
+      path: '/account/orders/$code'
+      fullPath: '/account/orders/$code'
+      preLoaderRoute: typeof AccountAccountOrdersCodeRouteImport
+      parentRoute: typeof AccountRouteRoute
     }
   }
 }
 
+interface AccountRouteRouteChildren {
+  AccountAccountSettingsRoute: typeof AccountAccountSettingsRoute
+  AccountAccountIndexRoute: typeof AccountAccountIndexRoute
+  AccountAccountOrdersCodeRoute: typeof AccountAccountOrdersCodeRoute
+  AccountAccountOrdersIndexRoute: typeof AccountAccountOrdersIndexRoute
+}
+
+const AccountRouteRouteChildren: AccountRouteRouteChildren = {
+  AccountAccountSettingsRoute: AccountAccountSettingsRoute,
+  AccountAccountIndexRoute: AccountAccountIndexRoute,
+  AccountAccountOrdersCodeRoute: AccountAccountOrdersCodeRoute,
+  AccountAccountOrdersIndexRoute: AccountAccountOrdersIndexRoute,
+}
+
+const AccountRouteRouteWithChildren = AccountRouteRoute._addFileChildren(
+  AccountRouteRouteChildren,
+)
+
+interface CheckoutCheckoutRouteRouteChildren {
+  CheckoutCheckoutStepRoute: typeof CheckoutCheckoutStepRoute
+}
+
+const CheckoutCheckoutRouteRouteChildren: CheckoutCheckoutRouteRouteChildren = {
+  CheckoutCheckoutStepRoute: CheckoutCheckoutStepRoute,
+}
+
+const CheckoutCheckoutRouteRouteWithChildren =
+  CheckoutCheckoutRouteRoute._addFileChildren(
+    CheckoutCheckoutRouteRouteChildren,
+  )
+
+interface CheckoutRouteRouteChildren {
+  CheckoutCheckoutRouteRoute: typeof CheckoutCheckoutRouteRouteWithChildren
+}
+
+const CheckoutRouteRouteChildren: CheckoutRouteRouteChildren = {
+  CheckoutCheckoutRouteRoute: CheckoutCheckoutRouteRouteWithChildren,
+}
+
+const CheckoutRouteRouteWithChildren = CheckoutRouteRoute._addFileChildren(
+  CheckoutRouteRouteChildren,
+)
+
+interface DefaultSearchRouteRouteChildren {
+  DefaultSearchCollectionsCollectionRoute: typeof DefaultSearchCollectionsCollectionRoute
+  DefaultSearchSearchIndexRoute: typeof DefaultSearchSearchIndexRoute
+}
+
+const DefaultSearchRouteRouteChildren: DefaultSearchRouteRouteChildren = {
+  DefaultSearchCollectionsCollectionRoute:
+    DefaultSearchCollectionsCollectionRoute,
+  DefaultSearchSearchIndexRoute: DefaultSearchSearchIndexRoute,
+}
+
+const DefaultSearchRouteRouteWithChildren =
+  DefaultSearchRouteRoute._addFileChildren(DefaultSearchRouteRouteChildren)
+
+interface DefaultRouteRouteChildren {
+  DefaultSearchRouteRoute: typeof DefaultSearchRouteRouteWithChildren
+  DefaultSignInRoute: typeof DefaultSignInRoute
+  DefaultIndexRoute: typeof DefaultIndexRoute
+  DefaultProductProductIdRoute: typeof DefaultProductProductIdRoute
+}
+
+const DefaultRouteRouteChildren: DefaultRouteRouteChildren = {
+  DefaultSearchRouteRoute: DefaultSearchRouteRouteWithChildren,
+  DefaultSignInRoute: DefaultSignInRoute,
+  DefaultIndexRoute: DefaultIndexRoute,
+  DefaultProductProductIdRoute: DefaultProductProductIdRoute,
+}
+
+const DefaultRouteRouteWithChildren = DefaultRouteRoute._addFileChildren(
+  DefaultRouteRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
-  IndexRoute: IndexRoute,
-  DemoApiNamesRoute: DemoApiNamesRoute,
-  DemoStartApiRequestRoute: DemoStartApiRequestRoute,
-  DemoStartServerFuncsRoute: DemoStartServerFuncsRoute,
-  DemoStartSsrDataOnlyRoute: DemoStartSsrDataOnlyRoute,
-  DemoStartSsrFullSsrRoute: DemoStartSsrFullSsrRoute,
-  DemoStartSsrSpaModeRoute: DemoStartSsrSpaModeRoute,
-  DemoStartSsrIndexRoute: DemoStartSsrIndexRoute,
+  AccountRouteRoute: AccountRouteRouteWithChildren,
+  CheckoutRouteRoute: CheckoutRouteRouteWithChildren,
+  DefaultRouteRoute: DefaultRouteRouteWithChildren,
+  LogoutRoute: LogoutRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

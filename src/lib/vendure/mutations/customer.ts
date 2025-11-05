@@ -1,4 +1,4 @@
-import { graphql } from '@/gql/graphql';
+import { graphql } from "@/gql/graphql";
 
 export const authenticate = graphql(`
     mutation authenticate($input: AuthenticationInput!) {

@@ -1,4 +1,4 @@
-import {graphql} from "@/gql/graphql";
+import { graphql } from "@/gql/graphql";
 
 const activeChannelFragment = graphql(`
     fragment active_channel on Channel {

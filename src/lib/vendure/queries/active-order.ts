@@ -1,10 +1,13 @@
-import { graphql } from '@/gql/graphql';
-import activeOrderFragment from '../fragments/active-order';
+import { graphql } from "@/gql/graphql";
+import activeOrderFragment from "../fragments/active-order";
 
-export const getActiveOrderQuery = graphql(`
+export const getActiveOrderQuery = graphql(
+  `
   query getActiveOrder {
     activeOrder {
       ...active_order
     }
   }
-`, [activeOrderFragment]);
+`,
+  [activeOrderFragment],
+);

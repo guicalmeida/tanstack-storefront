@@ -1,310 +1,124 @@
-Welcome to your new TanStack app! 
+# TanStack Storefront
 
-# Getting Started
+A modern e-commerce storefront migrated from Next.js to the TanStack ecosystem. Originally created by [Vendure](https://vendure.io) and [Vercel](https://vercel.com), this version explores TanStack Start, Router, and Form.
 
-To run this application:
+## About
+
+This is a learning experiment - a way to contribute back to the community and explore TanStack's capabilities. The original Vendure x Next.js Commerce template has been refactored to use TanStack's suite of tools.
+
+**⚠️ Disclaimer**: As a learning project, it has potential flaws, especially around authentication where I have limited experience. Use it, contribute to it, but be mindful of production considerations.
+
+## Technical Gains
+
+### TanStack Start
+
+- **End-to-End Type Safety**: 100% inferred TypeScript support from server to client
+- **Server Functions**: Clean `createServerFn`, `createServerOnlyFn`, `createClientOnlyFn`, and `createIsomorphicFn` instead of directives like "use server"
+- **Isomorphic SSR Model**: Server and client code sharing with excellent streaming capabilities
+
+### TanStack Router
+
+- **100% Inferred TypeScript**: Auto-completed paths, params, and search params with full type inference
+- **Type-Safe Navigation**: Navigate with confidence knowing your routes exist at compile time
+- **Search Param State Management**: First-class URL state management that works like a proper state manager
+
+### Developer Experience
+
+- **TanStack DevTools**: Incredible debugging experience for routing and forms
+- **File-based Routing**: Intuitive and predictable
+- **Hot Reloading**: Fast feedback loop with Vite
+
+## Limitations & Trade-offs
+
+- **No Server Components**: Unlike Next.js, no React Server Components support yet
+- **New & Changing**: TanStack Start is stable but will evolve significantly
+- **Limited LLM Knowledge**: Being new means less AI assistance and more manual doc reading
+- **Image Handling**: Dropped Next.js Image component for [@unpic/react](https://unpic.pics) - less optimization out of the box
+- **Smaller Ecosystem**: Fewer examples and community resources compared to Next.js
+
+## Tech Stack
+
+- **TanStack Start**: Full-stack React framework
+- **TanStack Router**: Type-safe routing
+- **TanStack Form**: Form state management
+- **Tailwind CSS**: Styling
+- **Radix UI + shadcn/ui**: Component primitives
+- **GraphQL + gql.tada**: Type-safe API layer
+- **Biome**: Linting and formatting
+- **Vitest**: Testing
+
+## Getting Started
 
 ```bash
+# Install dependencies
 npm install
-npm run start
+
+# Copy environment variables
+cp .env.example .env.local
+# Edit .env.local with your Vendure API endpoint
+
+# Start development server
+npm run dev
 ```
 
-# Building For Production
+## Environment Variables
 
-To build this application for production:
+Copy `.env.example` to `.env.local` and configure:
 
 ```bash
-npm run build
+VENDURE_SHOP_API_ENDPOINT="https://demo.vendure.io/shop-api"
+VITE_COMPANY_NAME="My Company"
+VITE_TWITTER_CREATOR="@example-twitter"
+VITE_TWITTER_SITE="https://tanstack.com/"
+VITE_SITE_NAME="Tanstack Commerce"
+SESSION_SECRET=this-is-a-secure-32-chars-phrase
+NODE_ENV=development
 ```
 
-## Testing
-
-This project uses [Vitest](https://vitest.dev/) for testing. You can run the tests with:
+## Scripts
 
 ```bash
-npm run test
+npm run dev      # Development server
+npm run build    # Production build
+npm run serve    # Preview production build
+npm run test     # Run tests
+npm run lint     # Lint with Biome
+npm run format   # Format with Biome
 ```
 
-## Styling
+## Project Structure
 
-This project uses [Tailwind CSS](https://tailwindcss.com/) for styling.
-
-
-## Linting & Formatting
-
-This project uses [Biome](https://biomejs.dev/) for linting and formatting. The following scripts are available:
-
-
-```bash
-npm run lint
-npm run format
-npm run check
+```
+src/
+├── routes/           # File-based routing
+├── components/       # UI components
+│   ├── custom/      # App-specific components
+│   └── ui/          # shadcn/ui components
+├── lib/             # Utilities and API
+└── styles/          # Global styles
 ```
 
-
-## Shadcn
-
-Add components using the latest version of [Shadcn](https://ui.shadcn.com/).
+## Adding Components
 
 ```bash
+# Add shadcn/ui components
 pnpx shadcn@latest add button
+pnpx shadcn@latest add dialog
 ```
 
+## Contributing
 
+Contributions welcome! This is a learning project, so don't hesitate to suggest improvements or point out issues.
 
-## Routing
-This project uses [TanStack Router](https://tanstack.com/router). The initial setup is a file based router. Which means that the routes are managed as files in `src/routes`.
+## Acknowledgments
 
-### Adding A Route
+- **Vendure & Vercel**: Original storefront implementation
+- **TanStack Team**: Amazing tools that make this possible
 
-To add a new route to your application just add another a new file in the `./src/routes` directory.
+## License
 
-TanStack will automatically generate the content of the route file for you.
+MIT - see [LICENSE](LICENSE) file for details.
 
-Now that you have two routes you can use a `Link` component to navigate between them.
+---
 
-### Adding Links
-
-To use SPA (Single Page Application) navigation you will need to import the `Link` component from `@tanstack/react-router`.
-
-```tsx
-import { Link } from "@tanstack/react-router";
-```
-
-Then anywhere in your JSX you can use it like so:
-
-```tsx
-<Link to="/about">About</Link>
-```
-
-This will create a link that will navigate to the `/about` route.
-
-More information on the `Link` component can be found in the [Link documentation](https://tanstack.com/router/v1/docs/framework/react/api/router/linkComponent).
-
-### Using A Layout
-
-In the File Based Routing setup the layout is located in `src/routes/__root.tsx`. Anything you add to the root route will appear in all the routes. The route content will appear in the JSX where you use the `<Outlet />` component.
-
-Here is an example layout that includes a header:
-
-```tsx
-import { Outlet, createRootRoute } from '@tanstack/react-router'
-import { TanStackRouterDevtools } from '@tanstack/react-router-devtools'
-
-import { Link } from "@tanstack/react-router";
-
-export const Route = createRootRoute({
-  component: () => (
-    <>
-      <header>
-        <nav>
-          <Link to="/">Home</Link>
-          <Link to="/about">About</Link>
-        </nav>
-      </header>
-      <Outlet />
-      <TanStackRouterDevtools />
-    </>
-  ),
-})
-```
-
-The `<TanStackRouterDevtools />` component is not required so you can remove it if you don't want it in your layout.
-
-More information on layouts can be found in the [Layouts documentation](https://tanstack.com/router/latest/docs/framework/react/guide/routing-concepts#layouts).
-
-
-## Data Fetching
-
-There are multiple ways to fetch data in your application. You can use TanStack Query to fetch data from a server. But you can also use the `loader` functionality built into TanStack Router to load the data for a route before it's rendered.
-
-For example:
-
-```tsx
-const peopleRoute = createRoute({
-  getParentRoute: () => rootRoute,
-  path: "/people",
-  loader: async () => {
-    const response = await fetch("https://swapi.dev/api/people");
-    return response.json() as Promise<{
-      results: {
-        name: string;
-      }[];
-    }>;
-  },
-  component: () => {
-    const data = peopleRoute.useLoaderData();
-    return (
-      <ul>
-        {data.results.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    );
-  },
-});
-```
-
-Loaders simplify your data fetching logic dramatically. Check out more information in the [Loader documentation](https://tanstack.com/router/latest/docs/framework/react/guide/data-loading#loader-parameters).
-
-### React-Query
-
-React-Query is an excellent addition or alternative to route loading and integrating it into you application is a breeze.
-
-First add your dependencies:
-
-```bash
-npm install @tanstack/react-query @tanstack/react-query-devtools
-```
-
-Next we'll need to create a query client and provider. We recommend putting those in `main.tsx`.
-
-```tsx
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-
-// ...
-
-const queryClient = new QueryClient();
-
-// ...
-
-if (!rootElement.innerHTML) {
-  const root = ReactDOM.createRoot(rootElement);
-
-  root.render(
-    <QueryClientProvider client={queryClient}>
-      <RouterProvider router={router} />
-    </QueryClientProvider>
-  );
-}
-```
-
-You can also add TanStack Query Devtools to the root route (optional).
-
-```tsx
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-
-const rootRoute = createRootRoute({
-  component: () => (
-    <>
-      <Outlet />
-      <ReactQueryDevtools buttonPosition="top-right" />
-      <TanStackRouterDevtools />
-    </>
-  ),
-});
-```
-
-Now you can use `useQuery` to fetch your data.
-
-```tsx
-import { useQuery } from "@tanstack/react-query";
-
-import "./App.css";
-
-function App() {
-  const { data } = useQuery({
-    queryKey: ["people"],
-    queryFn: () =>
-      fetch("https://swapi.dev/api/people")
-        .then((res) => res.json())
-        .then((data) => data.results as { name: string }[]),
-    initialData: [],
-  });
-
-  return (
-    <div>
-      <ul>
-        {data.map((person) => (
-          <li key={person.name}>{person.name}</li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-export default App;
-```
-
-You can find out everything you need to know on how to use React-Query in the [React-Query documentation](https://tanstack.com/query/latest/docs/framework/react/overview).
-
-## State Management
-
-Another common requirement for React applications is state management. There are many options for state management in React. TanStack Store provides a great starting point for your project.
-
-First you need to add TanStack Store as a dependency:
-
-```bash
-npm install @tanstack/store
-```
-
-Now let's create a simple counter in the `src/App.tsx` file as a demonstration.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-function App() {
-  const count = useStore(countStore);
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-    </div>
-  );
-}
-
-export default App;
-```
-
-One of the many nice features of TanStack Store is the ability to derive state from other state. That derived state will update when the base state updates.
-
-Let's check this out by doubling the count using derived state.
-
-```tsx
-import { useStore } from "@tanstack/react-store";
-import { Store, Derived } from "@tanstack/store";
-import "./App.css";
-
-const countStore = new Store(0);
-
-const doubledStore = new Derived({
-  fn: () => countStore.state * 2,
-  deps: [countStore],
-});
-doubledStore.mount();
-
-function App() {
-  const count = useStore(countStore);
-  const doubledCount = useStore(doubledStore);
-
-  return (
-    <div>
-      <button onClick={() => countStore.setState((n) => n + 1)}>
-        Increment - {count}
-      </button>
-      <div>Doubled - {doubledCount}</div>
-    </div>
-  );
-}
-
-export default App;
-```
-
-We use the `Derived` class to create a new store that is derived from another store. The `Derived` class has a `mount` method that will start the derived store updating.
-
-Once we've created the derived store we can use it in the `App` component just like we would any other store using the `useStore` hook.
-
-You can find out everything you need to know on how to use TanStack Store in the [TanStack Store documentation](https://tanstack.com/store/latest).
-
-# Demo files
-
-Files prefixed with `demo` can be safely deleted. They are there to provide a starting point for you to play around with the features you've installed.
-
-# Learn More
-
-You can learn more about all of the offerings from TanStack in the [TanStack documentation](https://tanstack.com).
+Built by [Guilherme de Almeida](https://github.com/guicalmeida) as a learning experiment with TanStack.

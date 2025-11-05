@@ -4,8 +4,12 @@ export interface VendureErrorLike {
   cause?: Error;
 }
 
-export const isObject = (object: unknown): object is Record<string, unknown> => {
-  return typeof object === 'object' && object !== null && !Array.isArray(object);
+export const isObject = (
+  object: unknown,
+): object is Record<string, unknown> => {
+  return (
+    typeof object === "object" && object !== null && !Array.isArray(object)
+  );
 };
 
 export const isVendureError = (error: unknown): error is VendureErrorLike => {
@@ -17,7 +21,7 @@ export const isVendureError = (error: unknown): error is VendureErrorLike => {
 };
 
 function findError<T extends object>(error: T): boolean {
-  if (Object.prototype.toString.call(error) === '[object Error]') {
+  if (Object.prototype.toString.call(error) === "[object Error]") {
     return true;
   }
 

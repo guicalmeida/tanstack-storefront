@@ -1,10 +1,13 @@
-import activeChannelFragment from '../fragments/active-channel';
-import {graphql} from "@/gql/graphql";
+import { graphql } from "@/gql/graphql";
+import activeChannelFragment from "../fragments/active-channel";
 
-export const getActiveChannelQuery = graphql(`
+export const getActiveChannelQuery = graphql(
+  `
   query getActiveChannel {
     activeChannel {
       ...active_channel
     }
   }
-`, [activeChannelFragment]);
+`,
+  [activeChannelFragment],
+);

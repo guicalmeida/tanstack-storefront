@@ -1,4 +1,4 @@
-import { graphql } from '@/gql/graphql';
+import { graphql } from "@/gql/graphql";
 
 export const activeCustomerFragment = graphql(`
   fragment active_customer on Customer {
@@ -9,10 +9,13 @@ export const activeCustomerFragment = graphql(`
   }
 `);
 
-export const getActiveCustomerQuery = graphql(`
+export const getActiveCustomerQuery = graphql(
+  `
   query getActiveCustomer {
     activeCustomer {
       ...active_customer
     }
   }
-`, [activeCustomerFragment]);
+`,
+  [activeCustomerFragment],
+);

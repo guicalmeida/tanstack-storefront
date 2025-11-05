@@ -1,5 +1,5 @@
-import { graphql } from '@/gql/graphql';
-import assetFragment from './image';
+import { graphql } from "@/gql/graphql";
+import assetFragment from "./image";
 
 export const variantFragment = graphql(`
   fragment variant on ProductVariant {
@@ -60,7 +60,7 @@ const productFragment = graphql(
       updatedAt
     }
   `,
-  [assetFragment, variantFragment, productOptionGroupFragment]
+  [assetFragment, variantFragment, productOptionGroupFragment],
 );
 
 export default productFragment;

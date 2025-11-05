@@ -1,28 +1,15 @@
-import { isVendureError } from "@/lib/type-guards";
-import {
-  collectionFragment,
-  getCollectionFacetValuesQuery,
-  getCollectionProductsQuery,
-  getCollectionQuery,
-  getCollectionsQuery,
-} from "./queries/collection";
-import { getMenuQuery } from "./queries/menu";
-import { getProductQuery, getProductsQuery } from "./queries/product";
-import {
-  addItemToOrder,
-  adjustOrderLineMutation,
-  removeOrderLineMutation,
-} from "./mutations/active-order";
+import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
+import type { ResultOf, VariablesOf } from "gql.tada";
 import { type DocumentNode, print } from "graphql";
-import { getActiveOrderQuery } from "./queries/active-order";
-import { getActiveChannelQuery } from "./queries/active-channel";
-import { getFacetsQuery } from "./queries/facets";
-import { facetFragment, facetValueFragment } from "./fragments/facet";
-import activeOrderFragment from "./fragments/active-order";
-import searchResultFragment from "./fragments/search-result";
+import { readFragment } from "@/gql/graphql";
+import { useAppSession } from "@/lib/session";
+import { isVendureError } from "@/lib/type-guards";
+import activeChannelFragment from "@/lib/vendure/fragments/active-channel";
+import orderFragment from "@/lib/vendure/fragments/order";
+import productFragment from "@/lib/vendure/fragments/product";
 import { authenticate } from "@/lib/vendure/mutations/customer";
 import { updateCustomerMutation } from "@/lib/vendure/mutations/update-customer";
-import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import {
   activeCustomerFragment,
   getActiveCustomerQuery,
@@ -31,67 +18,62 @@ import {
   getCustomerOrdersQuery,
   getOrderByCodeQuery,
 } from "@/lib/vendure/queries/customer-orders";
-import orderFragment from "@/lib/vendure/fragments/order";
-import type { VariablesOf, ResultOf } from "gql.tada";
-import { readFragment } from "@/gql/graphql";
-import activeChannelFragment from "@/lib/vendure/fragments/active-channel";
-import productFragment from "@/lib/vendure/fragments/product";
+import activeOrderFragment from "./fragments/active-order";
+import { facetFragment, facetValueFragment } from "./fragments/facet";
+import searchResultFragment from "./fragments/search-result";
+import {
+  addItemToOrder,
+  adjustOrderLineMutation,
+  removeOrderLineMutation,
+} from "./mutations/active-order";
+import { getActiveChannelQuery } from "./queries/active-channel";
+import { getActiveOrderQuery } from "./queries/active-order";
+import {
+  collectionFragment,
+  getCollectionFacetValuesQuery,
+  getCollectionProductsQuery,
+  getCollectionQuery,
+  getCollectionsQuery,
+} from "./queries/collection";
+import { getFacetsQuery } from "./queries/facets";
+import { getMenuQuery } from "./queries/menu";
+import { getProductQuery, getProductsQuery } from "./queries/product";
+import { serverEnv } from "@/env/server";
 
-const endpoint =
-  typeof window === "undefined"
-    ? process.env.VENDURE_API_ENDPOINT || "http://localhost:3000/shop-api"
-    : (import.meta as any).env?.VITE_VENDURE_API_ENDPOINT ||
-      "http://localhost:3000/shop-api";
+/**
+ * Server-only function to get the Vendure endpoint
+ * This prevents the environment variable from being accessed on the client
+ */
+const getEndpoint = createServerOnlyFn(() => {
+  return serverEnv.VENDURE_SHOP_API_ENDPOINT;
+});
 
-const AUTH_TOKEN_KEY = "vendure-token";
-const AUTH_HEADER_KEY = "vendure-auth-token";
-
-function getAuthToken(serverToken?: string): string | null {
-  if (serverToken) return serverToken;
-  if (typeof window === "undefined") return null;
-  return localStorage.getItem(AUTH_TOKEN_KEY);
-}
-
-function saveAuthToken(token: string): void {
-  if (typeof window !== "undefined") {
-    localStorage.setItem(AUTH_TOKEN_KEY, token);
-  }
-}
-
-export function clearAuthToken(): void {
-  if (typeof window !== "undefined") {
-    localStorage.removeItem(AUTH_TOKEN_KEY);
-  }
-}
-
+/**
+ * Core Vendure GraphQL fetch function
+ * Similar to Next.js version but adapted for TanStack Start
+ */
 export async function vendureFetch<
   T,
-  V extends Record<string, any> = Record<string, any>,
+  V extends Record<string, unknown> = Record<string, unknown>,
 >({
   cache = "force-cache",
   headers,
   query,
   variables,
-  token,
 }: {
   cache?: RequestCache;
   headers?: HeadersInit;
   query: DocumentNode | TypedDocumentNode<T, V> | string;
   variables?: V;
-  token?: string;
-}): Promise<{ status: number; body: T; headers: Headers } | never> {
+}): Promise<{ status: number; body: T; headers: Headers }> {
   try {
-    const isServer = typeof window === "undefined";
-    const authToken = getAuthToken(token);
-    const mergedHeaders: HeadersInit = {
-      "Content-Type": "application/json",
-      ...(headers || {}),
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-    };
-
+    const endpoint = getEndpoint();
     const result = await fetch(endpoint, {
       method: "POST",
-      headers: mergedHeaders,
+      headers: {
+        "Content-Type": "application/json",
+        ...headers,
+      },
       body: JSON.stringify({
         ...(query && {
           query: typeof query === "string" ? query : print(query),
@@ -100,13 +82,6 @@ export async function vendureFetch<
       }),
       cache,
     });
-
-    if (!isServer) {
-      const newToken = result.headers.get(AUTH_HEADER_KEY);
-      if (newToken) {
-        saveAuthToken(newToken);
-      }
-    }
 
     const body = await result.json();
 
@@ -137,270 +112,357 @@ export async function vendureFetch<
   }
 }
 
-export async function addToCart(productVariantId: string, quantity: number) {
-  const res = await vendureFetch({
-    query: addItemToOrder,
-    variables: {
-      productVariantId,
-      quantity,
+/**
+ * Server-only function to get auth headers from session
+ * Only callable from server functions, not from isomorphic code
+ */
+const getAuthHeaders = createServerOnlyFn(async () => {
+  const session = await useAppSession();
+  const tokenValue = session.data?.vendureToken;
+
+  return tokenValue
+    ? {
+        Authorization: `Bearer ${tokenValue}`,
+      }
+    : undefined;
+});
+
+/**
+ * Server-only function to update auth token in session
+ */
+const updateAuthToken = createServerOnlyFn(async (headers: Headers) => {
+  const session = await useAppSession();
+  const tokenValue = headers.get("vendure-auth-token");
+
+  if (tokenValue && tokenValue !== "") {
+    await session.update({
+      ...session.data,
+      vendureToken: tokenValue,
+      isAuthenticated: true,
+    });
+  }
+});
+
+// PUBLIC DATA FUNCTIONS (server functions for security)
+// All Vendure calls must go through server for security
+
+export const getActiveChannel = createServerFn().handler(
+  async (): Promise<ResultOf<typeof activeChannelFragment>> => {
+    const res = await vendureFetch({
+      query: getActiveChannelQuery,
+    });
+
+    return readFragment(activeChannelFragment, res.body.activeChannel);
+  },
+);
+
+export const getCollection = createServerFn()
+  .inputValidator((handle: string) => handle)
+  .handler(
+    async ({
+      data: handle,
+    }): Promise<ResultOf<typeof collectionFragment> | null> => {
+      const res = await vendureFetch({
+        query: getCollectionQuery,
+        variables: {
+          slug: handle,
+        },
+      });
+
+      return res.body.collection
+        ? readFragment(collectionFragment, res.body.collection)
+        : null;
     },
-    cache: "no-store",
-  });
+  );
 
-  return res.body.addItemToOrder;
-}
+export const getCollectionProducts = createServerFn()
+  .inputValidator(
+    (params: {
+      collection: string;
+      sortKey?: string;
+      direction?: "ASC" | "DESC";
+      facetValueFilters?: VariablesOf<
+        typeof getCollectionProductsQuery
+      >["facetValueFilters"];
+    }) => params,
+  )
+  .handler(
+    async ({
+      data: { collection, sortKey, direction, facetValueFilters },
+    }): Promise<ResultOf<typeof searchResultFragment>[]> => {
+      const res = await vendureFetch({
+        query: getCollectionProductsQuery,
+        variables: {
+          slug: collection,
+          facetValueFilters,
+          sortKey: {
+            [sortKey || "name"]: direction || "ASC",
+          },
+        },
+      });
 
-export async function adjustCartItem(orderLineId: string, quantity: number) {
-  const res = await vendureFetch({
-    query: adjustOrderLineMutation,
-    variables: {
-      orderLineId,
-      quantity,
+      return res.body.search.items.map((item) =>
+        readFragment(searchResultFragment, item),
+      );
     },
-    cache: "no-store",
-  });
+  );
 
-  return res.body.adjustOrderLine;
-}
+export const getCollectionFacetValues = createServerFn()
+  .inputValidator(
+    (params: {
+      collection: string;
+      sortKey?: string;
+      direction?: "ASC" | "DESC";
+    }) => params,
+  )
+  .handler(
+    async ({
+      data: { collection, sortKey, direction },
+    }): Promise<ResultOf<typeof facetValueFragment>[]> => {
+      const res = await vendureFetch({
+        query: getCollectionFacetValuesQuery,
+        variables: {
+          slug: collection,
+          sortKey: {
+            [sortKey || "name"]: direction || "ASC",
+          },
+        },
+      });
 
-export async function removeFromCart(orderLineId: string) {
-  const res = await vendureFetch({
-    query: removeOrderLineMutation,
-    variables: {
-      orderLineId,
+      return res.body.search.facetValues.map((item) =>
+        readFragment(facetValueFragment, item.facetValue),
+      );
     },
-    cache: "no-store",
-  });
+  );
 
-  return res.body.removeOrderLine;
-}
+export const getCollections = createServerFn()
+  .inputValidator(
+    (params: { topLevelOnly?: boolean; parentId?: string } = {}) => params,
+  )
+  .handler(
+    async ({
+      data: { topLevelOnly = false, parentId } = {},
+    }): Promise<ResultOf<typeof collectionFragment>[]> => {
+      const res = await vendureFetch({
+        query: getCollectionsQuery,
+        variables: {
+          topLevelOnly,
+          ...(parentId && { filter: { parentId: { eq: parentId } } }),
+        },
+      });
 
-export async function getActiveOrder(): Promise<ResultOf<
-  typeof activeOrderFragment
-> | null> {
-  const res = await vendureFetch({
-    query: getActiveOrderQuery,
-  });
-
-  return res.body.activeOrder
-    ? readFragment(activeOrderFragment, res.body.activeOrder)
-    : null;
-}
-
-export async function getActiveChannel(): Promise<
-  ResultOf<typeof activeChannelFragment>
-> {
-  const res = await vendureFetch({
-    query: getActiveChannelQuery,
-  });
-
-  return readFragment(activeChannelFragment, res.body.activeChannel);
-}
-
-export async function getCollection(
-  handle: string,
-): Promise<ResultOf<typeof collectionFragment> | null> {
-  const res = await vendureFetch({
-    query: getCollectionQuery,
-
-    variables: {
-      slug: handle,
+      return res.body.collections.items.map((item) =>
+        readFragment(collectionFragment, item),
+      );
     },
-  });
+  );
 
-  return res.body.collection
-    ? readFragment(collectionFragment, res.body.collection)
-    : null;
-}
+export const getFacets = createServerFn().handler(
+  async (): Promise<ResultOf<typeof facetFragment>[]> => {
+    const res = await vendureFetch({
+      query: getFacetsQuery,
+    });
 
-export async function getCollectionProducts({
-  collection,
-  sortKey,
-  direction,
-  facetValueFilters,
-}: {
-  collection: string;
-  sortKey?: string;
-  direction?: "ASC" | "DESC";
-  facetValueFilters?: VariablesOf<
-    typeof getCollectionProductsQuery
-  >["facetValueFilters"];
-}): Promise<ResultOf<typeof searchResultFragment>[]> {
-  const res = await vendureFetch({
-    query: getCollectionProductsQuery,
-    variables: {
-      slug: collection,
-      facetValueFilters,
-      sortKey: {
-        [sortKey || "name"]: direction || "ASC",
+    return res.body.facets.items.map((item) =>
+      readFragment(facetFragment, item),
+    );
+  },
+);
+
+export const getMenu = createServerFn().handler(
+  async (): Promise<ResultOf<typeof collectionFragment>[]> => {
+    const res = await vendureFetch({
+      query: getMenuQuery,
+    });
+
+    return res.body.collections.items.map((item) =>
+      readFragment(collectionFragment, item),
+    );
+  },
+);
+
+export const getProduct = createServerFn()
+  .inputValidator((handle: string) => handle)
+  .handler(async ({ data: handle }) => {
+    const res = await vendureFetch({
+      query: getProductQuery,
+      variables: {
+        slug: handle,
       },
-    },
+    });
+
+    return readFragment(productFragment, res.body.product);
   });
 
-  return res.body.search.items.map((item) =>
-    readFragment(searchResultFragment, item),
-  );
-}
-
-export async function getCollectionFacetValues({
-  collection,
-  sortKey,
-  direction,
-}: {
-  collection: string;
-  sortKey?: string;
-  direction?: "ASC" | "DESC";
-}): Promise<ResultOf<typeof facetValueFragment>[]> {
-  const res = await vendureFetch({
-    query: getCollectionFacetValuesQuery,
-    variables: {
-      slug: collection,
-      sortKey: {
-        [sortKey || "name"]: direction || "ASC",
-      },
-    },
-  });
-
-  return res.body.search.facetValues.map((item) =>
-    readFragment(facetValueFragment, item.facetValue),
-  );
-}
-
-export async function getCollections({
-  topLevelOnly = false,
-  parentId,
-}: {
-  topLevelOnly?: boolean;
-  parentId?: string;
-} = {}): Promise<ResultOf<typeof collectionFragment>[]> {
-  const res = await vendureFetch({
-    query: getCollectionsQuery,
-
-    variables: {
-      topLevelOnly,
-      ...(parentId && { filter: { parentId: { eq: parentId } } }),
-    },
-  });
-
-  return res.body.collections.items.map((item) =>
-    readFragment(collectionFragment, item),
-  );
-}
-
-export async function getFacets(): Promise<ResultOf<typeof facetFragment>[]> {
-  const res = await vendureFetch({
-    query: getFacetsQuery,
-  });
-
-  return res.body.facets.items.map((item) => readFragment(facetFragment, item));
-}
-
-export async function getMenu(): Promise<
-  ResultOf<typeof collectionFragment>[]
-> {
-  const res = await vendureFetch({
-    query: getMenuQuery,
-  });
-
-  return res.body.collections.items.map((item) =>
-    readFragment(collectionFragment, item),
-  );
-}
-
-export async function getProduct(handle: string) {
-  const res = await vendureFetch({
-    query: getProductQuery,
-
-    variables: {
-      slug: handle,
-    },
-  });
-
-  return readFragment(productFragment, res.body.product);
-}
-
-export async function getProducts({
-  query,
-  direction,
-  sortKey,
-}: {
-  query?: string;
-  direction?: string;
-  sortKey?: string;
-}) {
-  const res = await vendureFetch({
-    query: getProductsQuery,
-
-    variables: {
-      query,
-      sortKey: {
-        [sortKey || "name"]: direction || "ASC",
-      },
-    },
-  });
-
-  return res.body.search.items.map((item) =>
-    readFragment(searchResultFragment, item),
-  );
-}
-
-export async function authenticateCustomer(username: string, password: string) {
-  const res = await vendureFetch({
-    query: authenticate,
-
-    variables: {
-      input: {
-        native: {
-          username,
-          password,
+export const getProducts = createServerFn()
+  .inputValidator(
+    (params: { query?: string; direction?: string; sortKey?: string }) =>
+      params,
+  )
+  .handler(async ({ data: { query, direction, sortKey } }) => {
+    const res = await vendureFetch({
+      query: getProductsQuery,
+      variables: {
+        query,
+        sortKey: {
+          [sortKey || "name"]: direction || "ASC",
         },
       },
-    },
+    });
+
+    return res.body.search.items.map((item) =>
+      readFragment(searchResultFragment, item),
+    );
   });
 
-  return res.body.authenticate;
-}
+// AUTHENTICATED DATA FUNCTIONS (SERVER FUNCTIONS)
+// These require authentication and can only be called from client as RPC
 
-export async function getActiveCustomer() {
+export const addToCart = createServerFn()
+  .inputValidator(
+    (params: { productVariantId: string; quantity: number }) => params,
+  )
+  .handler(async ({ data: { productVariantId, quantity } }) => {
+    const res = await vendureFetch({
+      query: addItemToOrder,
+      variables: {
+        productVariantId,
+        quantity,
+      },
+      cache: "no-store",
+      headers: await getAuthHeaders(),
+    });
+
+    await updateAuthToken(res.headers);
+
+    return res.body.addItemToOrder;
+  });
+
+export const adjustCartItem = createServerFn()
+  .inputValidator((params: { orderLineId: string; quantity: number }) => params)
+  .handler(async ({ data: { orderLineId, quantity } }) => {
+    const res = await vendureFetch({
+      query: adjustOrderLineMutation,
+      variables: {
+        orderLineId,
+        quantity,
+      },
+      cache: "no-store",
+      headers: await getAuthHeaders(),
+    });
+
+    return res.body.adjustOrderLine;
+  });
+
+export const removeFromCart = createServerFn()
+  .inputValidator((orderLineId: string) => orderLineId)
+  .handler(async ({ data: orderLineId }) => {
+    const res = await vendureFetch({
+      query: removeOrderLineMutation,
+      variables: {
+        orderLineId,
+      },
+      cache: "no-store",
+      headers: await getAuthHeaders(),
+    });
+
+    return res.body.removeOrderLine;
+  });
+
+export const getActiveOrder = createServerFn().handler(
+  async (): Promise<ResultOf<typeof activeOrderFragment> | null> => {
+    const res = await vendureFetch({
+      query: getActiveOrderQuery,
+      cache: "no-store",
+      headers: await getAuthHeaders(),
+    });
+
+    return res.body.activeOrder
+      ? readFragment(activeOrderFragment, res.body.activeOrder)
+      : null;
+  },
+);
+
+export const authenticateCustomer = createServerFn({ method: "POST" })
+  .inputValidator((params: { username: string; password: string }) => params)
+  .handler(async ({ data: { username, password } }) => {
+    const res = await vendureFetch({
+      query: authenticate,
+      variables: {
+        input: {
+          native: {
+            username,
+            password,
+          },
+        },
+      },
+      cache: "no-store",
+    });
+
+    await updateAuthToken(res.headers);
+
+    return res.body.authenticate;
+  });
+
+export const getActiveCustomer = createServerFn().handler(async () => {
   const res = await vendureFetch({
     query: getActiveCustomerQuery,
-  });
-
-  return readFragment(activeCustomerFragment, res.body.activeCustomer);
-}
-
-export async function getCustomerOrders(
-  options?: VariablesOf<typeof getCustomerOrdersQuery>["options"],
-) {
-  const res = await vendureFetch({
-    query: getCustomerOrdersQuery,
-
-    variables: { options },
-  });
-
-  return res.body.activeCustomer?.orders;
-}
-
-export async function getOrderByCode(code: string) {
-  const res = await vendureFetch({
-    query: getOrderByCodeQuery,
-
-    variables: { code },
-  });
-
-  return res.body.orderByCode
-    ? readFragment(orderFragment, res.body.orderByCode)
-    : null;
-}
-
-export async function updateCustomer(
-  input: VariablesOf<typeof updateCustomerMutation>["input"],
-) {
-  const res = await vendureFetch({
-    query: updateCustomerMutation,
     cache: "no-store",
-    variables: { input },
+    headers: await getAuthHeaders(),
   });
 
-  return readFragment(activeCustomerFragment, res.body.updateCustomer);
+  return res.body.activeCustomer
+    ? readFragment(activeCustomerFragment, res.body.activeCustomer)
+    : null;
+});
+
+export const getCustomerOrders = createServerFn()
+  .inputValidator(
+    (options?: VariablesOf<typeof getCustomerOrdersQuery>["options"]) =>
+      options,
+  )
+  .handler(async ({ data: options }) => {
+    const res = await vendureFetch({
+      query: getCustomerOrdersQuery,
+      variables: { options },
+      cache: "no-store",
+      headers: await getAuthHeaders(),
+    });
+
+    return res.body.activeCustomer?.orders;
+  });
+
+export const getOrderByCode = createServerFn()
+  .inputValidator((code: string) => code)
+  .handler(async ({ data: code }) => {
+    const res = await vendureFetch({
+      query: getOrderByCodeQuery,
+      variables: { code },
+      cache: "no-store",
+      headers: await getAuthHeaders(),
+    });
+
+    return res.body.orderByCode
+      ? readFragment(orderFragment, res.body.orderByCode)
+      : null;
+  });
+
+export const updateCustomer = createServerFn({ method: "POST" })
+  .inputValidator(
+    (params: VariablesOf<typeof updateCustomerMutation>["input"]) => params,
+  )
+  .handler(async ({ data }) => {
+    const res = await vendureFetch({
+      query: updateCustomerMutation,
+      cache: "no-store",
+      variables: { input: data },
+      headers: await getAuthHeaders(),
+    });
+
+    return readFragment(activeCustomerFragment, res.body.updateCustomer);
+  });
+
+export async function getPage(_slug: string) {
+  // TODO: Implement with custom entity
+  return undefined;
 }

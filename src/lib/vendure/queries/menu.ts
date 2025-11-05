@@ -1,5 +1,5 @@
-import { graphql } from '@/gql/graphql';
-import { collectionFragment } from '@/lib/vendure/queries/collection';
+import { graphql } from "@/gql/graphql";
+import { collectionFragment } from "@/lib/vendure/queries/collection";
 
 /**
  * @description
@@ -15,5 +15,5 @@ export const getMenuQuery = graphql(
       }
     }
   `,
-  [collectionFragment]
+  [collectionFragment],
 );
