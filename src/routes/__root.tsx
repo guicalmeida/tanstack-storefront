@@ -1,4 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
+import { FormDevtools } from "@tanstack/react-form-devtools";
 import {
   createRootRoute,
   HeadContent,
@@ -6,17 +7,16 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
+import { getCurrentUserAction } from "@/components/custom/account/actions";
 import { CartProvider } from "@/components/custom/cart/cart-context";
 import { ChannelProvider } from "@/components/custom/cart/channel-context";
 import ErrorComponent from "@/components/custom/errors/error";
 import { Toaster } from "@/components/ui/sonner";
-import { fetchSession } from "@/lib/session";
-import { getActiveChannel, getActiveOrder } from "@/lib/vendure";
-import { getCurrentUserAction } from "@/components/custom/account/actions";
 import { clientEnv } from "@/env/client";
+import { fetchSession } from "@/lib/session";
 import { ensureStartsWith } from "@/lib/utils";
+import { getActiveChannel, getActiveOrder } from "@/lib/vendure";
 import appCss from "../styles.css?url";
-import { FormDevtools } from "@tanstack/react-form-devtools";
 
 export const Route = createRootRoute({
   head: () => {
