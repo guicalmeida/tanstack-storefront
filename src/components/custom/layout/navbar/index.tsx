@@ -43,9 +43,9 @@ export function Navbar({ menu }: NavbarProps) {
           </Link>
           {menu.length ? (
             <ul className="hidden gap-6 text-sm md:flex md:items-center">
-              {menu
-                .map((data) => readFragment(collectionFragment, data))
-                .map((item) => (
+              {menu.map((data) => {
+                const item = readFragment(collectionFragment, data);
+                return (
                   <li key={item.slug}>
                     <Link
                       to={"/collections/$collection"}
@@ -55,7 +55,8 @@ export function Navbar({ menu }: NavbarProps) {
                       {item.name}
                     </Link>
                   </li>
-                ))}
+                );
+              })}
             </ul>
           ) : null}
         </div>

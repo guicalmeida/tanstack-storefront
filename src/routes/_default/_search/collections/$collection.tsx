@@ -6,6 +6,7 @@ import { CollectionProvider } from "@/components/custom/layout/search/collection
 import Facets from "@/components/custom/layout/search/facets";
 import ProductGridSkeleton from "@/components/custom/skeletons/grid";
 import { defaultSort, sorting } from "@/lib/constants";
+import { createEcommerceMeta } from "@/lib/metadata";
 import { searchSchema } from "@/lib/search-schema";
 import {
   getActiveChannel,
@@ -13,7 +14,6 @@ import {
   getCollectionProducts,
   getFacets,
 } from "@/lib/vendure";
-import { createEcommerceMeta } from "@/lib/metadata";
 
 export const Route = createFileRoute(
   "/_default/_search/collections/$collection",
@@ -37,7 +37,7 @@ export const Route = createFileRoute(
     // Build facet filters from search params
     const facetFilters = facets
       .map((facet) => {
-        const valueIdsAsString = search[facet.code] as string | undefined;
+        const valueIdsAsString = search[facet.code];
         return {
           or: valueIdsAsString?.split(",") ?? [],
         };

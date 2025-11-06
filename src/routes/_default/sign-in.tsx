@@ -1,6 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SignInForm } from "@/components/custom/account/sign-in-form";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import {
   Card,
   CardContent,
@@ -31,16 +30,6 @@ function SignInComponent() {
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
-          <Alert variant="default" className="mb-2">
-            <AlertTitle>Test Credentials</AlertTitle>
-            <AlertDescription>
-              <div>
-                <strong>E-Mail: </strong> test@vendure.io
-                <br />
-                <strong>Password: </strong> test
-              </div>
-            </AlertDescription>
-          </Alert>
           <SignInForm />
         </CardContent>
         <CardFooter>

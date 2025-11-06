@@ -20,9 +20,9 @@ export function Carousel({ products, activeChannel }: CarouselProps) {
   return (
     <div className="w-full overflow-x-auto pt-1 pb-6">
       <ul className="animate-carousel flex gap-4">
-        {carouselProducts
-          .map((data) => readFragment(searchResultFragment, data))
-          .map((product, i) => (
+        {carouselProducts.map((data, i) => {
+          const product = readFragment(searchResultFragment, data);
+          return (
             <li
               key={`${product.slug}${i}`}
               className="relative aspect-square h-[30vh] max-h-[275px] w-2/3 max-w-[475px] flex-none md:w-1/3"
@@ -45,7 +45,8 @@ export function Carousel({ products, activeChannel }: CarouselProps) {
                 />
               </Link>
             </li>
-          ))}
+          );
+        })}
       </ul>
     </div>
   );

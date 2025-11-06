@@ -5,6 +5,7 @@ import Collections from "@/components/custom/layout/search/collections";
 import FilterList from "@/components/custom/layout/search/filter";
 import { SearchLayoutSkeleton } from "@/components/custom/skeletons/search";
 import { sorting } from "@/lib/constants";
+import { sortCollectionsByHierarchy } from "@/lib/utils";
 import { getCollections, getMenu } from "@/lib/vendure";
 
 export const Route = createFileRoute("/_default/_search")({
@@ -14,18 +15,9 @@ export const Route = createFileRoute("/_default/_search")({
       getMenu(),
     ]);
 
-    // Sort collections based on parentId
-    collections.sort((a, b) => {
-      if (a.parentId === b.id) {
-        return 1;
-      }
-      if (b.parentId === a.id) {
-        return -1;
-      }
-      return 0;
-    });
+    const sortedCollections = sortCollectionsByHierarchy(collections);
 
-    return { collections, menu };
+    return { collections: sortedCollections, menu };
   },
   pendingComponent: SearchLayoutSkeleton,
   errorComponent: ErrorComponent,

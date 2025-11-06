@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import clsx from "clsx";
+import { clientEnv } from "@/env/client";
 import type { SortFilterItem } from "@/lib/constants";
 import type { ListItem, PathFilterItem } from ".";
 
 function PathFilterItemComponent({ item }: { item: PathFilterItem }) {
+  const { VITE_PARENT_ID } = clientEnv;
   return (
     <li className="mt-2 flex text-black dark:text-white" key={item.slug}>
       <Link
@@ -11,7 +13,7 @@ function PathFilterItemComponent({ item }: { item: PathFilterItem }) {
         params={{ collection: item.slug }}
         activeOptions={{ exact: false }}
         className={clsx("w-full text-sm underline-offset-4", {
-          "pl-4": item.parentId !== "1",
+          "pl-4": item.parentId !== VITE_PARENT_ID,
         })}
         activeProps={{
           className: "underline font-medium dark:text-neutral-100",

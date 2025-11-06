@@ -14,6 +14,7 @@ import ErrorComponent from "@/components/custom/errors/error";
 import { Toaster } from "@/components/ui/sonner";
 import { clientEnv } from "@/env/client";
 import { fetchSession } from "@/lib/session";
+import { getBaseUrl } from "@/lib/metadata";
 import { ensureStartsWith } from "@/lib/utils";
 import { getActiveChannel, getActiveOrder } from "@/lib/vendure";
 import appCss from "../styles.css?url";
@@ -28,9 +29,7 @@ export const Route = createRootRoute({
     } = clientEnv;
 
     // Base URL construction
-    const baseUrl = import.meta.env.VITE_VERCEL_URL
-      ? `https://${import.meta.env.VITE_VERCEL_URL}`
-      : "http://localhost:3000";
+    const baseUrl = getBaseUrl();
 
     // Twitter handle formatting
     const twitterCreator = VITE_TWITTER_CREATOR
@@ -181,9 +180,7 @@ export const Route = createRootRoute({
   scripts: () => {
     const { VITE_SITE_NAME, VITE_COMPANY_NAME } = clientEnv;
 
-    const baseUrl = import.meta.env.VITE_VERCEL_URL
-      ? `https://${import.meta.env.VITE_VERCEL_URL}`
-      : "http://localhost:3000";
+    const baseUrl = getBaseUrl();
 
     // Organization structured data
     const organizationJsonLd = {

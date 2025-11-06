@@ -1,6 +1,8 @@
 import type { ResultOf } from "gql.tada";
 import type React from "react";
 import { Addresses } from "@/components/custom/checkout/addresses";
+import { Payment } from "@/components/custom/checkout/payment";
+import { Shipping } from "@/components/custom/checkout/shipping";
 import type activeOrderFragment from "@/lib/vendure/fragments/active-order";
 
 export type CheckoutStep = {
@@ -25,25 +27,29 @@ export const checkoutSteps: Array<CheckoutStep> = [
   {
     title: "Shipping",
     identifier: "shipping",
-    validate: (_order) => {
-      // TODO: where to store shipping method?
-      return false;
+    validate: (order) => {
+      return !!order.shippingLines && order.shippingLines.length > 0;
     },
+    component: <Shipping />,
   },
   {
     title: "Payment",
     identifier: "payment",
-    validate: (_order) => {
-      // TODO: where to store payment method?
-      return false;
+    validate: (order) => {
+      return !!order.payments && order.payments.length > 0;
     },
+    component: <Payment />,
   },
   {
     title: "Summary",
     identifier: "summary",
-    validate: (_order) => {
-      // TODO: check everything again
-      return false;
+    validate: (order) => {
+      return !!(
+        order.billingAddress &&
+        order.shippingAddress &&
+        order.shippingLines?.length &&
+        order.customer
+      );
     },
   },
 ];

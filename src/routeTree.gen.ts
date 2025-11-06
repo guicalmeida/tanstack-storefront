@@ -24,6 +24,7 @@ import { Route as AccountAccountSettingsRouteImport } from './routes/_account/ac
 import { Route as DefaultSearchSearchIndexRouteImport } from './routes/_default/_search/search/index'
 import { Route as AccountAccountOrdersIndexRouteImport } from './routes/_account/account/orders/index'
 import { Route as DefaultSearchCollectionsCollectionRouteImport } from './routes/_default/_search/collections/$collection'
+import { Route as CheckoutCheckoutConfirmationCodeRouteImport } from './routes/_checkout/checkout/confirmation/$code'
 import { Route as AccountAccountOrdersCodeRouteImport } from './routes/_account/account/orders/$code'
 
 const LogoutRoute = LogoutRouteImport.update({
@@ -100,6 +101,12 @@ const DefaultSearchCollectionsCollectionRoute =
     path: '/collections/$collection',
     getParentRoute: () => DefaultSearchRouteRoute,
   } as any)
+const CheckoutCheckoutConfirmationCodeRoute =
+  CheckoutCheckoutConfirmationCodeRouteImport.update({
+    id: '/confirmation/$code',
+    path: '/confirmation/$code',
+    getParentRoute: () => CheckoutCheckoutRouteRoute,
+  } as any)
 const AccountAccountOrdersCodeRoute =
   AccountAccountOrdersCodeRouteImport.update({
     id: '/account/orders/$code',
@@ -117,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/product/$productId': typeof DefaultProductProductIdRoute
   '/account': typeof AccountAccountIndexRoute
   '/account/orders/$code': typeof AccountAccountOrdersCodeRoute
+  '/checkout/confirmation/$code': typeof CheckoutCheckoutConfirmationCodeRoute
   '/collections/$collection': typeof DefaultSearchCollectionsCollectionRoute
   '/account/orders': typeof AccountAccountOrdersIndexRoute
   '/search': typeof DefaultSearchSearchIndexRoute
@@ -131,6 +139,7 @@ export interface FileRoutesByTo {
   '/product/$productId': typeof DefaultProductProductIdRoute
   '/account': typeof AccountAccountIndexRoute
   '/account/orders/$code': typeof AccountAccountOrdersCodeRoute
+  '/checkout/confirmation/$code': typeof CheckoutCheckoutConfirmationCodeRoute
   '/collections/$collection': typeof DefaultSearchCollectionsCollectionRoute
   '/account/orders': typeof AccountAccountOrdersIndexRoute
   '/search': typeof DefaultSearchSearchIndexRoute
@@ -150,6 +159,7 @@ export interface FileRoutesById {
   '/_default/product/$productId': typeof DefaultProductProductIdRoute
   '/_account/account/': typeof AccountAccountIndexRoute
   '/_account/account/orders/$code': typeof AccountAccountOrdersCodeRoute
+  '/_checkout/checkout/confirmation/$code': typeof CheckoutCheckoutConfirmationCodeRoute
   '/_default/_search/collections/$collection': typeof DefaultSearchCollectionsCollectionRoute
   '/_account/account/orders/': typeof AccountAccountOrdersIndexRoute
   '/_default/_search/search/': typeof DefaultSearchSearchIndexRoute
@@ -166,6 +176,7 @@ export interface FileRouteTypes {
     | '/product/$productId'
     | '/account'
     | '/account/orders/$code'
+    | '/checkout/confirmation/$code'
     | '/collections/$collection'
     | '/account/orders'
     | '/search'
@@ -180,6 +191,7 @@ export interface FileRouteTypes {
     | '/product/$productId'
     | '/account'
     | '/account/orders/$code'
+    | '/checkout/confirmation/$code'
     | '/collections/$collection'
     | '/account/orders'
     | '/search'
@@ -198,6 +210,7 @@ export interface FileRouteTypes {
     | '/_default/product/$productId'
     | '/_account/account/'
     | '/_account/account/orders/$code'
+    | '/_checkout/checkout/confirmation/$code'
     | '/_default/_search/collections/$collection'
     | '/_account/account/orders/'
     | '/_default/_search/search/'
@@ -317,6 +330,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DefaultSearchCollectionsCollectionRouteImport
       parentRoute: typeof DefaultSearchRouteRoute
     }
+    '/_checkout/checkout/confirmation/$code': {
+      id: '/_checkout/checkout/confirmation/$code'
+      path: '/confirmation/$code'
+      fullPath: '/checkout/confirmation/$code'
+      preLoaderRoute: typeof CheckoutCheckoutConfirmationCodeRouteImport
+      parentRoute: typeof CheckoutCheckoutRouteRoute
+    }
     '/_account/account/orders/$code': {
       id: '/_account/account/orders/$code'
       path: '/account/orders/$code'
@@ -347,10 +367,12 @@ const AccountRouteRouteWithChildren = AccountRouteRoute._addFileChildren(
 
 interface CheckoutCheckoutRouteRouteChildren {
   CheckoutCheckoutStepRoute: typeof CheckoutCheckoutStepRoute
+  CheckoutCheckoutConfirmationCodeRoute: typeof CheckoutCheckoutConfirmationCodeRoute
 }
 
 const CheckoutCheckoutRouteRouteChildren: CheckoutCheckoutRouteRouteChildren = {
   CheckoutCheckoutStepRoute: CheckoutCheckoutStepRoute,
+  CheckoutCheckoutConfirmationCodeRoute: CheckoutCheckoutConfirmationCodeRoute,
 }
 
 const CheckoutCheckoutRouteRouteWithChildren =

@@ -2,6 +2,7 @@ import { type ClassValue, clsx } from "clsx";
 import type { ResultOf } from "gql.tada";
 import { twMerge } from "tailwind-merge";
 import type searchResultFragment from "./vendure/fragments/search-result";
+import type { collectionFragment } from "./vendure/queries/collection";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -58,4 +59,51 @@ export function getOrderStatusColor(state: string) {
     default:
       return "text-gray-600 bg-gray-50";
   }
+}
+
+/**
+ * Sorts collections hierarchically to group parents with their children
+ * @param collections - Array of collections to sort
+ * @returns Sorted array with parents followed by their children recursively
+ */
+export function sortCollectionsByHierarchy(
+  collections: ResultOf<typeof collectionFragment>[],
+): ResultOf<typeof collectionFragment>[] {
+  const sortedCollections: ResultOf<typeof collectionFragment>[] = [];
+  const collectionMap = new Map(collections.map((c) => [c.id, c]));
+  const processedIds = new Set<string>();
+
+  // Helper function to add a collection and its children recursively
+  const addCollectionWithChildren = (
+    collection: ResultOf<typeof collectionFragment>,
+  ): void => {
+    if (processedIds.has(collection.id)) return;
+
+    sortedCollections.push(collection);
+    processedIds.add(collection.id);
+
+    // Find and add all direct children
+    const children = collections.filter((c) => c.parentId === collection.id);
+    children.forEach((child) => {
+      addCollectionWithChildren(child);
+    });
+  };
+
+  // First, add all root collections (those without parents or whose parent doesn't exist)
+  const rootCollections = collections.filter(
+    (c) => !c.parentId || !collectionMap.has(c.parentId),
+  );
+
+  rootCollections.forEach((root) => {
+    addCollectionWithChildren(root);
+  });
+
+  // Add any remaining collections that weren't processed (orphaned items)
+  collections.forEach((c) => {
+    if (!processedIds.has(c.id)) {
+      addCollectionWithChildren(c);
+    }
+  });
+
+  return sortedCollections;
 }

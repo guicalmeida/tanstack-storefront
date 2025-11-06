@@ -2,11 +2,11 @@ import type { TypedDocumentNode } from "@graphql-typed-document-node/core";
 import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import type { ResultOf, VariablesOf } from "gql.tada";
 import { type DocumentNode, print } from "graphql";
+import { serverEnv } from "@/env/server";
 import { readFragment } from "@/gql/graphql";
 import { useAppSession } from "@/lib/session";
 import { isVendureError } from "@/lib/type-guards";
 import activeChannelFragment from "@/lib/vendure/fragments/active-channel";
-import orderFragment from "@/lib/vendure/fragments/order";
 import productFragment from "@/lib/vendure/fragments/product";
 import { authenticate } from "@/lib/vendure/mutations/customer";
 import { updateCustomerMutation } from "@/lib/vendure/mutations/update-customer";
@@ -14,10 +14,7 @@ import {
   activeCustomerFragment,
   getActiveCustomerQuery,
 } from "@/lib/vendure/queries/active-customer";
-import {
-  getCustomerOrdersQuery,
-  getOrderByCodeQuery,
-} from "@/lib/vendure/queries/customer-orders";
+import { getCustomerOrdersQuery } from "@/lib/vendure/queries/customer-orders";
 import activeOrderFragment from "./fragments/active-order";
 import { facetFragment, facetValueFragment } from "./fragments/facet";
 import searchResultFragment from "./fragments/search-result";
@@ -26,6 +23,18 @@ import {
   adjustOrderLineMutation,
   removeOrderLineMutation,
 } from "./mutations/active-order";
+import {
+  addPaymentToOrderMutation,
+  availableCountriesQuery,
+  eligiblePaymentMethodsQuery,
+  eligibleShippingMethodsQuery,
+  orderByCodeQuery,
+  setCustomerForOrderMutation,
+  setOrderBillingAddressMutation,
+  setOrderShippingAddressMutation,
+  setOrderShippingMethodMutation,
+  transitionOrderToStateMutation,
+} from "./mutations/checkout";
 import { getActiveChannelQuery } from "./queries/active-channel";
 import { getActiveOrderQuery } from "./queries/active-order";
 import {
@@ -38,7 +47,29 @@ import {
 import { getFacetsQuery } from "./queries/facets";
 import { getMenuQuery } from "./queries/menu";
 import { getProductQuery, getProductsQuery } from "./queries/product";
-import { serverEnv } from "@/env/server";
+
+// Types for checkout operations
+export type CreateAddressInput = {
+  fullName?: string | null;
+  company?: string | null;
+  streetLine1: string;
+  streetLine2?: string | null;
+  city?: string | null;
+  province?: string | null;
+  postalCode?: string | null;
+  countryCode: string;
+  phoneNumber?: string | null;
+  defaultShippingAddress?: boolean | null;
+  defaultBillingAddress?: boolean | null;
+};
+
+export type CreateCustomerInput = {
+  title?: string | null;
+  firstName: string;
+  lastName: string;
+  phoneNumber?: string | null;
+  emailAddress: string;
+};
 
 /**
  * Server-only function to get the Vendure endpoint
@@ -116,7 +147,7 @@ export async function vendureFetch<
  * Server-only function to get auth headers from session
  * Only callable from server functions, not from isomorphic code
  */
-const getAuthHeaders = createServerOnlyFn(async () => {
+export const getAuthHeaders = createServerOnlyFn(async () => {
   const session = await useAppSession();
   const tokenValue = session.data?.vendureToken;
 
@@ -432,21 +463,6 @@ export const getCustomerOrders = createServerFn()
     return res.body.activeCustomer?.orders;
   });
 
-export const getOrderByCode = createServerFn()
-  .inputValidator((code: string) => code)
-  .handler(async ({ data: code }) => {
-    const res = await vendureFetch({
-      query: getOrderByCodeQuery,
-      variables: { code },
-      cache: "no-store",
-      headers: await getAuthHeaders(),
-    });
-
-    return res.body.orderByCode
-      ? readFragment(orderFragment, res.body.orderByCode)
-      : null;
-  });
-
 export const updateCustomer = createServerFn({ method: "POST" })
   .inputValidator(
     (params: VariablesOf<typeof updateCustomerMutation>["input"]) => params,
@@ -460,6 +476,164 @@ export const updateCustomer = createServerFn({ method: "POST" })
     });
 
     return readFragment(activeCustomerFragment, res.body.updateCustomer);
+  });
+
+// CHECKOUT OPERATIONS (SERVER FUNCTIONS)
+// These handle the checkout flow: addresses, shipping, payment, etc.
+
+export const setOrderShippingAddress = createServerFn({ method: "POST" })
+  .inputValidator((data: CreateAddressInput) => data)
+  .handler(async ({ data }) => {
+    const res = await vendureFetch({
+      query: setOrderShippingAddressMutation,
+      variables: { input: data },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    if (res.body.setOrderShippingAddress.__typename === "Order") {
+      return readFragment(
+        activeOrderFragment,
+        res.body.setOrderShippingAddress,
+      );
+    }
+
+    throw new Error("Failed to set shipping address");
+  });
+
+export const setOrderBillingAddress = createServerFn({ method: "POST" })
+  .inputValidator((data: CreateAddressInput) => data)
+  .handler(async ({ data }) => {
+    const res = await vendureFetch({
+      query: setOrderBillingAddressMutation,
+      variables: { input: data },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    if (res.body.setOrderBillingAddress.__typename === "Order") {
+      return res.body.setOrderBillingAddress;
+    }
+
+    throw new Error("Failed to set billing address");
+  });
+
+export const setCustomerForOrder = createServerFn({ method: "POST" })
+  .inputValidator((data: CreateCustomerInput) => data)
+  .handler(async ({ data }) => {
+    const res = await vendureFetch({
+      query: setCustomerForOrderMutation,
+      variables: { input: data },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    if (res.body.setCustomerForOrder.__typename === "Order") {
+      return res.body.setCustomerForOrder;
+    }
+
+    throw new Error("Failed to set customer");
+  });
+
+export const setOrderShippingMethod = createServerFn({ method: "POST" })
+  .inputValidator((data: { shippingMethodId: string[] }) => data)
+  .handler(async ({ data }) => {
+    const res = await vendureFetch({
+      query: setOrderShippingMethodMutation,
+      variables: { shippingMethodId: data.shippingMethodId },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    if (res.body.setOrderShippingMethod.__typename === "Order") {
+      return res.body.setOrderShippingMethod;
+    }
+
+    throw new Error("Failed to set shipping method");
+  });
+
+export const getEligibleShippingMethods = createServerFn().handler(async () => {
+  const res = await vendureFetch({
+    query: eligibleShippingMethodsQuery,
+    headers: await getAuthHeaders(),
+    cache: "no-store",
+  });
+
+  return res.body.eligibleShippingMethods;
+});
+
+export const getEligiblePaymentMethods = createServerFn().handler(async () => {
+  const res = await vendureFetch({
+    query: eligiblePaymentMethodsQuery,
+    headers: await getAuthHeaders(),
+    cache: "no-store",
+  });
+
+  return res.body.eligiblePaymentMethods;
+});
+
+export const getAvailableCountries = createServerFn().handler(async () => {
+  const res = await vendureFetch({
+    query: availableCountriesQuery,
+    cache: "force-cache",
+  });
+
+  return res.body.availableCountries;
+});
+
+export const addPaymentToOrder = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { method: string; metadata?: Record<string, unknown> }) => data,
+  )
+  .handler(async ({ data }) => {
+    const res = await vendureFetch({
+      query: addPaymentToOrderMutation,
+      variables: {
+        input: {
+          method: data.method,
+          metadata: data.metadata || {},
+        },
+      },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    if (res.body.addPaymentToOrder.__typename === "Order") {
+      return res.body.addPaymentToOrder;
+    }
+
+    throw new Error("Failed to add payment");
+  });
+
+export const transitionOrderToState = createServerFn({ method: "POST" })
+  .inputValidator((data: { state?: string }) => data)
+  .handler(async ({ data }) => {
+    const state = data.state || "ArrangingPayment";
+    const res = await vendureFetch({
+      query: transitionOrderToStateMutation,
+      variables: { state },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    if (res.body.transitionOrderToState?.__typename === "Order") {
+      return res.body.transitionOrderToState;
+    }
+
+    throw new Error("Failed to transition order state");
+  });
+
+export const getOrderByCode = createServerFn()
+  .inputValidator((code: string) => code)
+  .handler(async ({ data: code }) => {
+    const res = await vendureFetch({
+      query: orderByCodeQuery,
+      variables: { code },
+      headers: await getAuthHeaders(),
+      cache: "no-store",
+    });
+
+    return res.body.orderByCode;
   });
 
 export async function getPage(_slug: string) {

@@ -62,8 +62,8 @@ export default function Footer({ menu }: FooterProps) {
                 className="text-black hover:underline dark:text-white"
               >
                 Vendure
-              </a>
-              {" "}&{" "}
+              </a>{" "}
+              &{" "}
               <a
                 href="https://vercel.com"
                 className="text-black hover:underline dark:text-white"

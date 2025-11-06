@@ -66,6 +66,7 @@ npm run dev
 Copy `.env.example` to `.env.local` and configure:
 
 ```bash
+
 VENDURE_SHOP_API_ENDPOINT="https://demo.vendure.io/shop-api"
 VITE_COMPANY_NAME="My Company"
 VITE_TWITTER_CREATOR="@example-twitter"
@@ -73,6 +74,9 @@ VITE_TWITTER_SITE="https://tanstack.com/"
 VITE_SITE_NAME="Tanstack Commerce"
 SESSION_SECRET=this-is-a-secure-32-chars-phrase
 NODE_ENV=development
+VITE_PARENT_ID="1"
+VITE_WEBSITE_URL="http://localhost:3000"
+
 ```
 
 ## Scripts

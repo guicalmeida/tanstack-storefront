@@ -5,11 +5,11 @@ import type { collectionFragment } from "@/lib/vendure/queries/collection";
 import FilterItemDropdown from "./dropdown";
 import { FilterItem } from "./item";
 
-export type ListItem = SortFilterItem | PathFilterItem;
 export type PathFilterItem = Pick<
   ResultOf<typeof collectionFragment>,
   "slug" | "parentId" | "name"
 >;
+export type ListItem = SortFilterItem | PathFilterItem;
 
 function FilterItemList({ list }: { list: readonly ListItem[] }) {
   return (
